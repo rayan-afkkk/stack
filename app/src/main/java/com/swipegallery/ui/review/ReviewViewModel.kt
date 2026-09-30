@@ -40,9 +40,9 @@ data class ReviewUiState(
     val prepareFailed: Boolean = false,
     val notice: QueueNotice? = null,
 ) {
-    val selectedItems: List<QueueItem> get() = tiles.filter { it.selected }.map { it.item }
-    val selectedEstimate: QueueEstimate get() = QueueEstimate.of(selectedItems)
-    val totalEstimate: QueueEstimate get() = QueueEstimate.of(tiles.map { it.item })
+    val selectedItems: List<QueueItem> by lazy(LazyThreadSafetyMode.NONE) { tiles.filter { it.selected }.map { it.item } }
+    val selectedEstimate: QueueEstimate by lazy(LazyThreadSafetyMode.NONE) { QueueEstimate.of(selectedItems) }
+    val accessibleCount: Int by lazy(LazyThreadSafetyMode.NONE) { tiles.count { it.accessible } }
     val busy: Boolean get() = status != TrashStatus.IDLE
 }
 

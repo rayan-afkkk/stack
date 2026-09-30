@@ -168,7 +168,7 @@ fun AlbumsScreen(container: AppContainer, onOpenSetup: (SessionScope) -> Unit) {
                                 )
                             }
                         } else {
-                            items(s.albums, key = { it.bucketId }) { album ->
+                            items(s.albums, key = { it.bucketId }, contentType = { "album" }) { album ->
                                 AlbumTile(album, tilePx) {
                                     onOpenSetup(SessionScope.Album(album.bucketId, album.name))
                                 }

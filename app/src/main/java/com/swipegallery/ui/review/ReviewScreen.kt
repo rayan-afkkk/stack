@@ -182,13 +182,13 @@ fun ReviewScreen(container: AppContainer, onStartCleanup: () -> Unit) {
                         item(span = { GridItemSpan(maxLineSpan) }) {
                             SelectionBar(
                                 selected = state.selectedItems.size,
-                                total = state.tiles.count { it.accessible },
+                                total = state.accessibleCount,
                                 onAll = vm::selectAll,
                                 onNone = vm::selectNone,
                                 enabled = !state.busy,
                             )
                         }
-                        items(state.tiles, key = { it.item.key }) { tile ->
+                        items(state.tiles, key = { it.item.key }, contentType = { "thumb" }) { tile ->
                             QueueThumb(
                                 tile = tile,
                                 sizePx = thumbPx,

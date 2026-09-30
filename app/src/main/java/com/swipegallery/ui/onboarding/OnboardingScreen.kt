@@ -289,7 +289,7 @@ private fun SwipeDemoVisual(isCurrent: Boolean, reducedMotion: Boolean) {
                     .aspectRatio(0.75f)
                     .graphicsLayer {
                         translationX = offset.value
-                        rotationZ = progress * 5f
+                        rotationZ = (offset.value / travel).coerceIn(-1f, 1f) * 5f
                     }
                     .clip(RoundedCornerShape(Radii.card))
                     .background(c.surface)

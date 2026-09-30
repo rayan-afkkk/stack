@@ -34,6 +34,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.runtime.mutableFloatStateOf
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.rememberUpdatedState
@@ -175,7 +177,7 @@ fun SwipeDeck(
                     },
                     reducedMotion = reducedMotion,
                     hapticsEnabled = hapticsEnabled,
-                    description = describe(photo),
+                    description = remember(photo.key) { describe(photo) },
                     onProgress = { dragProgress.floatValue = it },
                     onDecide = onDecide,
                     onImageError = onImageError,
@@ -199,9 +201,18 @@ fun SwipeDeck(
     }
 }
 
-private class DragHolder {
-    var x = 0f
+/**
+ * While a finger is down the card position is plain snapshot state written synchronously
+ * from the pointer handler, so the card tracks the finger on the same frame. The Animatable
+ * only takes over for settle-back and entry animations.
+ */
+private class DragState {
+    var dragging by mutableStateOf(false)
+    var x by mutableFloatStateOf(0f)
     var committed = false
+
+    /** Bumped on every new touch so a stale settle-back never ends a newer drag. */
+    var gesture = 0
 }
 
 @Composable
@@ -225,11 +236,25 @@ private fun TopCard(
     val offset = remember { Animatable(if (reducedMotion) 0f else enterFrom ?: 0f) }
     // Settle-in: 0.98 → 1.0 scale with a short upward translation.
     val settle = remember { Animatable(if (reducedMotion) 1f else 0f) }
-    val drag = remember { DragHolder() }
+    val drag = remember { DragState() }
     val tracker = remember { VelocityTracker() }
     val settleSpec = tween<Float>(if (reducedMotion) 0 else 220, easing = FastOutSlowInEasing)
     val currentEnabled by rememberUpdatedState(enabled)
     val lift = with(LocalDensity.current) { 8.dp.toPx() }
+
+    fun currentX(): Float = if (drag.dragging) drag.x else offset.value
+
+    fun settleBack() {
+        onProgress(0f)
+        val gesture = drag.gesture
+        scope.launch {
+            if (drag.gesture != gesture) return@launch
+            // Hand the position from the drag state to the animation without a jump.
+            offset.snapTo(drag.x)
+            drag.dragging = false
+            offset.animateTo(0f, settleSpec)
+        }
+    }
 
     LaunchedEffect(Unit) {
         onProgress(0f)
@@ -239,13 +264,15 @@ private fun TopCard(
 
     fun commit(decision: Decision) {
         if (drag.committed || !currentEnabled) return
+        val from = currentX()
         if (onDecide(photo, decision)) {
             drag.committed = true
             onProgress(0f)
             view.confirmHaptic(hapticsEnabled)
-            state.exiting.add(ExitingCard(state.newId(), photo, offset.value, decision))
+            state.exiting.add(ExitingCard(state.newId(), photo, from, decision))
+        } else if (drag.dragging) {
+            settleBack()
         } else {
-            drag.x = 0f
             scope.launch { offset.animateTo(0f, settleSpec) }
         }
     }
@@ -272,33 +299,25 @@ private fun TopCard(
                 detectHorizontalSwipe(
                     onStart = {
                         tracker.resetTracking()
+                        drag.gesture++
                         drag.x = offset.value
+                        drag.dragging = true
                         scope.launch { offset.stop() }
                     },
                     onDrag = { dx, change ->
                         tracker.addPosition(change.uptimeMillis, change.position)
                         drag.x += dx
-                        val x = drag.x
-                        onProgress(SwipeDecider.progress(x, widthPx, config))
-                        scope.launch { offset.snapTo(x) }
+                        onProgress(SwipeDecider.progress(drag.x, widthPx, config))
                     },
                     onEnd = {
                         val velocity = tracker.calculateVelocity().x
                         when (SwipeDecider.decide(drag.x, velocity, widthPx, config)) {
                             SwipeOutcome.KEEP -> commit(Decision.KEEP)
                             SwipeOutcome.REMOVE -> commit(Decision.REMOVE)
-                            SwipeOutcome.CANCEL -> {
-                                drag.x = 0f
-                                onProgress(0f)
-                                scope.launch { offset.animateTo(0f, settleSpec) }
-                            }
+                            SwipeOutcome.CANCEL -> settleBack()
                         }
                     },
-                    onCancel = {
-                        drag.x = 0f
-                        onProgress(0f)
-                        scope.launch { offset.animateTo(0f, settleSpec) }
-                    },
+                    onCancel = { settleBack() },
                 )
             },
     ) {
@@ -310,15 +329,16 @@ private fun TopCard(
             modifier = Modifier
                 .fillMaxSize()
                 .graphicsLayer {
-                    translationX = offset.value
+                    val x = currentX()
+                    translationX = x
                     translationY = lift * (1f - settle.value)
                     val s = 0.98f + 0.02f * settle.value
                     scaleX = s
                     scaleY = s
-                    rotationZ = if (reducedMotion) 0f else SwipeDecider.rotationDegrees(offset.value, widthPx, config)
+                    rotationZ = if (reducedMotion) 0f else SwipeDecider.rotationDegrees(x, widthPx, config)
                 },
             onImageError = { onImageError(photo) },
-            labelProgress = { SwipeDecider.progress(offset.value, widthPx, config) * sign(offset.value) },
+            labelProgress = { val x = currentX(); SwipeDecider.progress(x, widthPx, config) * sign(x) },
         )
     }
 }

@@ -10,19 +10,38 @@ import java.time.format.FormatStyle
 import java.util.Locale
 
 object Format {
+    // Formatters are immutable and costly to build; cache them per locale.
+    private var locale: Locale? = null
+    private lateinit var medium: DateTimeFormatter
+    private lateinit var long: DateTimeFormatter
+    private lateinit var shortTime: DateTimeFormatter
+
+    private fun ensure() {
+        val current = Locale.getDefault()
+        if (current != locale) {
+            medium = DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(current)
+            long = DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(current)
+            shortTime = DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(current)
+            locale = current
+        }
+    }
+
     fun bytes(context: Context, bytes: Long): String = Formatter.formatShortFileSize(context, bytes)
 
-    fun date(millis: Long, zone: ZoneId = ZoneId.systemDefault()): String =
-        DateTimeFormatter.ofLocalizedDate(FormatStyle.MEDIUM).withLocale(Locale.getDefault())
-            .format(Instant.ofEpochMilli(millis).atZone(zone))
+    fun date(millis: Long, zone: ZoneId = ZoneId.systemDefault()): String {
+        ensure()
+        return medium.format(Instant.ofEpochMilli(millis).atZone(zone))
+    }
 
-    fun longDate(millis: Long, zone: ZoneId = ZoneId.systemDefault()): String =
-        DateTimeFormatter.ofLocalizedDate(FormatStyle.LONG).withLocale(Locale.getDefault())
-            .format(Instant.ofEpochMilli(millis).atZone(zone))
+    fun longDate(millis: Long, zone: ZoneId = ZoneId.systemDefault()): String {
+        ensure()
+        return long.format(Instant.ofEpochMilli(millis).atZone(zone))
+    }
 
-    fun time(millis: Long, zone: ZoneId = ZoneId.systemDefault()): String =
-        DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT).withLocale(Locale.getDefault())
-            .format(Instant.ofEpochMilli(millis).atZone(zone))
+    fun time(millis: Long, zone: ZoneId = ZoneId.systemDefault()): String {
+        ensure()
+        return shortTime.format(Instant.ofEpochMilli(millis).atZone(zone))
+    }
 
     fun month(yearMonth: YearMonth): String =
         DateTimeFormatter.ofPattern("LLLL yyyy", Locale.getDefault()).format(yearMonth)
