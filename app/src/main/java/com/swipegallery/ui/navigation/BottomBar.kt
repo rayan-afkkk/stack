@@ -1,5 +1,7 @@
 package com.swipegallery.ui.navigation
 
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -33,6 +35,7 @@ import androidx.compose.material.icons.outlined.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -76,6 +79,11 @@ fun BottomBar(currentRoute: String?, pendingCount: Int, onSelect: (String) -> Un
         ) {
             tabs.forEach { tab ->
                 val selected = currentRoute == tab.route
+                val tint by animateColorAsState(
+                    if (selected) c.textPrimary else c.textSecondary,
+                    animationSpec = tween(200),
+                    label = "tabTint",
+                )
                 val label = stringResource(tab.label)
                 val badge = if (tab.route == Routes.REVIEW && pendingCount > 0) pendingCount else 0
                 val badgeDescription = pluralStringResource(R.plurals.nav_review_badge, badge, badge)
@@ -92,7 +100,7 @@ fun BottomBar(currentRoute: String?, pendingCount: Int, onSelect: (String) -> Un
                         Icon(
                             if (selected) tab.activeIcon else tab.icon,
                             contentDescription = null,
-                            tint = if (selected) c.textPrimary else c.textSecondary,
+                            tint = tint,
                             modifier = Modifier.size(24.dp),
                         )
                         if (badge > 0) {
@@ -121,7 +129,7 @@ fun BottomBar(currentRoute: String?, pendingCount: Int, onSelect: (String) -> Un
                     Text(
                         label,
                         style = SwipeTheme.type.nav,
-                        color = if (selected) c.textPrimary else c.textSecondary,
+                        color = tint,
                         maxLines = 1,
                     )
                 }

@@ -1,8 +1,5 @@
 package com.swipegallery.ui.navigation
 
-import androidx.compose.animation.core.tween
-import androidx.compose.animation.fadeIn
-import androidx.compose.animation.fadeOut
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +12,7 @@ import androidx.compose.foundation.layout.windowInsetsPadding
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -63,7 +61,7 @@ private fun AppNavigation(container: AppContainer, startAtOnboarding: Boolean) {
     val route = backStack?.destination?.route
     val pending by container.reviews.queueCount.collectAsStateWithLifecycle(initialValue = 0)
     val reducedMotion = rememberReducedMotion()
-    val fadeMs = if (reducedMotion) 0 else 150
+    val motion = remember(reducedMotion) { ScreenMotion(reducedMotion) }
 
     Column(
         Modifier
@@ -75,10 +73,10 @@ private fun AppNavigation(container: AppContainer, startAtOnboarding: Boolean) {
             navController = nav,
             startDestination = if (startAtOnboarding) Routes.ONBOARDING else Routes.HOME,
             modifier = Modifier.weight(1f),
-            enterTransition = { fadeIn(tween(fadeMs)) },
-            exitTransition = { fadeOut(tween(fadeMs)) },
-            popEnterTransition = { fadeIn(tween(fadeMs)) },
-            popExitTransition = { fadeOut(tween(fadeMs)) },
+            enterTransition = { motion.enter(initialState.destination.route, targetState.destination.route) },
+            exitTransition = { motion.exit(initialState.destination.route, targetState.destination.route) },
+            popEnterTransition = { motion.enter(initialState.destination.route, targetState.destination.route) },
+            popExitTransition = { motion.exit(initialState.destination.route, targetState.destination.route) },
         ) {
             composable(
                 Routes.ONBOARDING,
