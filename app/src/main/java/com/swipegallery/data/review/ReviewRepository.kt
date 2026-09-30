@@ -84,6 +84,9 @@ class ReviewRepository(
 
     suspend fun markCompleted(sessionId: Long) = dao.completeSession(sessionId, clock.nowMillis())
 
+    /** An undo after the last photo makes a completed session resumable again. */
+    suspend fun reopen(sessionId: Long) = dao.reopenSession(sessionId)
+
     /** Old ledger days are irrelevant to the allowance; keep a short tail for diagnostics. */
     suspend fun pruneLedger() = dao.pruneChargesBefore(clock.today().minusDays(7).ledgerKey())
 

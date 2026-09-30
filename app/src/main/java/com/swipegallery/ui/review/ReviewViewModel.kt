@@ -97,10 +97,10 @@ class ReviewViewModel(private val container: AppContainer) : ViewModel() {
             if (queue.isEmpty()) return@launch
             val probe = container.media.probe(queue)
             val full = access == PhotoAccess.FULL
-            val trashed = queue.filter { probe[it.key] == ProbeState.TRASHED }.map { it.key }
-            val missing = if (full) queue.filter { probe[it.key] == ProbeState.ABSENT }.map { it.key } else emptyList()
-            val changed = queue.filter { probe[it.key] == ProbeState.CHANGED }.map { it.key }
-            val inaccessible = if (full) emptySet() else queue.filter { probe[it.key] == ProbeState.ABSENT }.mapTo(HashSet()) { it.key }
+            val trashed: List<String> = queue.filter { probe[it.key] == ProbeState.TRASHED }.map { it.key }
+            val missing: List<String> = if (full) queue.filter { probe[it.key] == ProbeState.ABSENT }.map { it.key } else emptyList()
+            val changed: List<String> = queue.filter { probe[it.key] == ProbeState.CHANGED }.map { it.key }
+            val inaccessible: Set<String> = if (full) emptySet() else queue.filter { probe[it.key] == ProbeState.ABSENT }.mapTo(HashSet()) { it.key }
             val cleanup = container.engine.applyQueueCleanup(trashed, missing, changed)
             extras.update {
                 it.copy(

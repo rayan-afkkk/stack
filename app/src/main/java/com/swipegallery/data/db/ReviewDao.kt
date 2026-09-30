@@ -105,6 +105,9 @@ interface ReviewDao {
     @Query("UPDATE sessions SET completedAt = :at WHERE id = :id AND completedAt IS NULL")
     suspend fun completeSession(id: Long, at: Long)
 
+    @Query("UPDATE sessions SET completedAt = NULL WHERE id = :id")
+    suspend fun reopenSession(id: Long)
+
     @Query(
         """
         SELECT * FROM sessions

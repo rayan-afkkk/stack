@@ -291,7 +291,7 @@ private fun ReviewingContent(
                 Spacer(Modifier.height(Space.l))
                 deckView(Modifier.weight(1f).fillMaxWidth())
                 Spacer(Modifier.height(Space.l))
-                controls()
+                controls(this)
             }
         }
     }
@@ -315,7 +315,7 @@ private fun PhotoDetails(photo: PhotoRef) {
 }
 
 @Composable
-private fun DecisionButtons(
+internal fun DecisionButtons(
     canUndo: Boolean,
     enabled: Boolean,
     onUndo: () -> Unit,
@@ -401,39 +401,13 @@ private fun PhaseContent(
 ) {
     Column(Modifier.fillMaxSize().verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.Center) {
         when (state.phase) {
-            SessionPhase.LIMIT_REACHED -> {
-                val allowance = state.allowance
-                EmptyState(
-                    icon = Icons.Outlined.HourglassEmpty,
-                    title = stringResource(R.string.limit_title),
-                    body = stringResource(
-                        R.string.limit_body,
-                        allowance?.let { Format.time(it.resetsAtMillis) } ?: "00:00",
-                    ),
-                )
-                Column(Modifier.fillMaxWidth().padding(horizontal = Space.gutter), verticalArrangement = Arrangement.spacedBy(Space.s)) {
-                    if (state.queueCount > 0) {
-                        PrimaryButton(
-                            pluralStringResource(R.plurals.limit_review_queue, state.queueCount, state.queueCount),
-                            onOpenQueue,
-                            Modifier.fillMaxWidth(),
-                        )
-                        SecondaryButton(
-                            stringResource(R.string.action_unlock_unlimited),
-                            { onOpenPaywall(PaywallSource.LIMIT) },
-                            Modifier.fillMaxWidth(),
-                            icon = Icons.Outlined.WorkspacePremium,
-                        )
-                    } else {
-                        PrimaryButton(
-                            stringResource(R.string.action_unlock_unlimited),
-                            { onOpenPaywall(PaywallSource.LIMIT) },
-                            Modifier.fillMaxWidth(),
-                        )
-                    }
-                    QuietButton(stringResource(R.string.action_back_home), onHome, Modifier.align(Alignment.CenterHorizontally))
-                }
-            }
+            SessionPhase.LIMIT_REACHED -> LimitReachedPanel(
+                queueCount = state.queueCount,
+                resetsAtMillis = state.allowance?.resetsAtMillis,
+                onOpenQueue = onOpenQueue,
+                onUnlock = { onOpenPaywall(PaywallSource.LIMIT) },
+                onHome = onHome,
+            )
 
             SessionPhase.COMPLETED -> {
                 EmptyState(
@@ -508,6 +482,47 @@ private fun PhaseContent(
 
             SessionPhase.LOADING, SessionPhase.REVIEWING -> Unit
         }
+    }
+}
+
+/**
+ * Shown after the 50th free review. Queued photos stay fully reachable (and free to remove);
+ * Premium is offered but never required to leave this state.
+ */
+@Composable
+internal fun LimitReachedPanel(
+    queueCount: Int,
+    resetsAtMillis: Long?,
+    onOpenQueue: () -> Unit,
+    onUnlock: () -> Unit,
+    onHome: () -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier.fillMaxWidth()) {
+        EmptyState(
+            icon = Icons.Outlined.HourglassEmpty,
+            title = stringResource(R.string.limit_title),
+            body = stringResource(R.string.limit_body, resetsAtMillis?.let { Format.time(it) } ?: "00:00"),
+        )
+        Column(Modifier.fillMaxWidth().padding(horizontal = Space.gutter), verticalArrangement = Arrangement.spacedBy(Space.s)) {
+            if (queueCount > 0) {
+                PrimaryButton(
+                    pluralStringResource(R.plurals.limit_review_queue, queueCount, queueCount),
+                    onOpenQueue,
+                    Modifier.fillMaxWidth(),
+                )
+                SecondaryButton(
+                    stringResource(R.string.action_unlock_unlimited),
+                    onUnlock,
+                    Modifier.fillMaxWidth(),
+                    icon = Icons.Outlined.WorkspacePremium,
+                )
+            } else {
+                PrimaryButton(stringResource(R.string.action_unlock_unlimited), onUnlock, Modifier.fillMaxWidth())
+            }
+            QuietButton(stringResource(R.string.action_back_home), onHome, Modifier.align(Alignment.CenterHorizontally))
+        }
+        Spacer(Modifier.height(Space.l))
     }
 }
 

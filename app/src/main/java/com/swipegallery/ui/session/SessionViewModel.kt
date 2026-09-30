@@ -94,7 +94,9 @@ class SessionViewModel(private val container: AppContainer, handle: SavedStateHa
     /** Remaining photos in order. Only touched on the main thread. */
     private val remaining = ArrayDeque<PhotoRef>()
     private var spec: SessionSpec? = null
+    /** Result of the allowance check for [decidableFor]; null while unknown. */
     private var decidable: Boolean? = null
+    private var decidableFor: String? = null
     private var decidableJob: Job? = null
     private var inFlightKey: String? = null
     private var undoToken = 0L
@@ -209,14 +211,16 @@ class SessionViewModel(private val container: AppContainer, handle: SavedStateHa
     private fun refreshDecidable() {
         val current = remaining.firstOrNull()
         decidableJob?.cancel()
-        if (current == null) {
+        if (current?.key != decidableFor) {
             decidable = null
-            return
+            decidableFor = current?.key
         }
+        if (current == null) return
         decidableJob = viewModelScope.launch {
             val ok = container.engine.canDecide(current.key)
             if (remaining.firstOrNull()?.key != current.key) return@launch
             decidable = ok
+            decidableFor = current.key
             _state.update { s ->
                 when {
                     !ok && s.phase == SessionPhase.REVIEWING -> s.copy(phase = SessionPhase.LIMIT_REACHED)
@@ -236,8 +240,11 @@ class SessionViewModel(private val container: AppContainer, handle: SavedStateHa
         val s = _state.value
         if (s.phase != SessionPhase.REVIEWING || inFlightKey != null) return false
         if (remaining.firstOrNull()?.key != photo.key) return false
-        if (decidable == false) {
-            _state.update { it.copy(phase = SessionPhase.LIMIT_REACHED) }
+        // Never let a card leave on a guess: the allowance check for *this* photo must be done.
+        if (decidableFor != photo.key || decidable != true) {
+            if (decidableFor == photo.key && decidable == false) {
+                _state.update { it.copy(phase = SessionPhase.LIMIT_REACHED) }
+            }
             return false
         }
         inFlightKey = photo.key
@@ -291,8 +298,10 @@ class SessionViewModel(private val container: AppContainer, handle: SavedStateHa
     fun undo() {
         if (inFlightKey != null) return
         viewModelScope.launch {
+            val wasCompleted = _state.value.phase == SessionPhase.COMPLETED
             when (val result = container.engine.undo(sessionId)) {
                 is UndoResult.Undone -> {
+                    if (wasCompleted) container.reviews.reopen(sessionId)
                     val index = container.media.index.value as? MediaIndex.Ready
                     val photo = index?.byKey(result.photo.key)
                     _state.update {

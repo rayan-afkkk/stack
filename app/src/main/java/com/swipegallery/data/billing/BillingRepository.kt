@@ -147,7 +147,7 @@ class BillingRepository(
                 ),
             )
             .build()
-        _product.value = suspendCancellableCoroutine { cont ->
+        _product.value = suspendCancellableCoroutine<ProductState> { cont ->
             client.queryProductDetailsAsync(params) { billingResult, detailsResult ->
                 val state = if (billingResult.responseCode == BillingResponseCode.OK) {
                     val details = detailsResult.productDetailsList.firstOrNull { it.productId == productId }
@@ -233,7 +233,7 @@ class BillingRepository(
             return PurchaseQueryResult.Failure(connection.responseCode.toBillingError())
         }
         val params = QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build()
-        return suspendCancellableCoroutine { cont ->
+        return suspendCancellableCoroutine<PurchaseQueryResult> { cont ->
             client.queryPurchasesAsync(params) { billingResult, purchases ->
                 val value = if (billingResult.responseCode == BillingResponseCode.OK) {
                     PurchaseQueryResult.Success(purchases.map { it.toRecord() })
@@ -250,7 +250,7 @@ class BillingRepository(
             if (ensureConnected().responseCode != BillingResponseCode.OK) return
             val params = AcknowledgePurchaseParams.newBuilder().setPurchaseToken(record.purchaseToken).build()
             // A failed acknowledgement is retried on the next refresh (it is still unacknowledged).
-            suspendCancellableCoroutine { cont ->
+            suspendCancellableCoroutine<Unit> { cont ->
                 client.acknowledgePurchase(params) { if (cont.isActive) cont.resume(Unit) }
             }
         }
@@ -259,7 +259,7 @@ class BillingRepository(
     private suspend fun ensureConnected(): BillingResult = connectMutex.withLock {
         if (client.isReady) return@withLock ok()
         withTimeoutOrNull(CONNECT_TIMEOUT_MS) {
-            suspendCancellableCoroutine { cont ->
+            suspendCancellableCoroutine<BillingResult> { cont ->
                 val resumed = AtomicBoolean(false)
                 client.startConnection(object : BillingClientStateListener {
                     override fun onBillingSetupFinished(billingResult: BillingResult) {

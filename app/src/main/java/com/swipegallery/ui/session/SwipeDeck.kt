@@ -24,7 +24,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Check
 import androidx.compose.material.icons.outlined.Delete
-import androidx.compose.material.icons.outlined.HideImage
+import androidx.compose.material.icons.outlined.BrokenImage
 import androidx.compose.material3.Icon
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -241,6 +241,7 @@ private fun TopCard(
         if (drag.committed || !currentEnabled) return
         if (onDecide(photo, decision)) {
             drag.committed = true
+            onProgress(0f)
             view.confirmHaptic(hapticsEnabled)
             state.exiting.add(ExitingCard(state.newId(), photo, offset.value, decision))
         } else {
@@ -455,7 +456,7 @@ private fun UnavailableOverlay(onSkip: () -> Unit) {
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center,
     ) {
-        Icon(Icons.Outlined.HideImage, contentDescription = null, tint = c.textSecondary, modifier = Modifier.size(36.dp))
+        Icon(Icons.Outlined.BrokenImage, contentDescription = null, tint = c.textSecondary, modifier = Modifier.size(36.dp))
         Spacer(Modifier.height(Space.m))
         Text(stringResource(R.string.session_unavailable_title), style = SwipeTheme.type.title, color = c.textPrimary)
         Spacer(Modifier.height(Space.xs))
