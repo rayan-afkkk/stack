@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Two stacked rounded cards, the front one tilted: a quiet mark for "swipe". -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#211F1B"
+        android:strokeColor="#34312B"
+        android:strokeWidth="1.5"
+        android:pathData="M41,33h26a6,6 0 0 1 6,6v32a6,6 0 0 1 -6,6h-26a6,6 0 0 1 -6,-6v-32a6,6 0 0 1 6,-6z" />
+    <group
+        android:pivotX="54"
+        android:pivotY="56"
+        android:rotation="8">
+        <path
+            android:fillColor="#F3EEE5"
+            android:pathData="M42,31h26a6,6 0 0 1 6,6v32a6,6 0 0 1 -6,6h-26a6,6 0 0 1 -6,-6v-32a6,6 0 0 1 6,-6z" />
+        <path
+            android:fillColor="#FF6B3D"
+            android:pathData="M49,58l6,-8l5,6l3,-3l6,5v2h-20z" />
+        <path
+            android:fillColor="#FF6B3D"
+            android:pathData="M60,45m-3,0a3,3 0 1 1 6,0a3,3 0 1 1 -6,0" />
+    </group>
+</vector>
