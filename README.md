@@ -196,7 +196,7 @@ Set these in `~/.gradle/gradle.properties` or pass them with `-P`. Empty values 
 ## Accessibility and motion
 - All interactive targets are at least 48 dp. Keep/Remove are always available as labeled buttons, and as TalkBack custom actions on the card.
 - Keep/remove use icons and words, never color alone. Photo descriptions list only date, size and dimensions, never guessed content.
-- Headings wrap instead of clipping at large font sizes. The session screen switches to a side-by-side layout in short landscape windows.
+- Headings (40–48sp) wrap instead of clipping at large font sizes. The session screen switches to a side-by-side layout in short landscape windows.
 - With system animations off ("Remove animations"), the deck uses a short fade with no tilt, and screen transitions become instant.
 
 ## Fonts

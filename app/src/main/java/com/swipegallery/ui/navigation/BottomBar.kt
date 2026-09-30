@@ -70,7 +70,7 @@ fun BottomBar(currentRoute: String?, pendingCount: Int, onSelect: (String) -> Un
             Modifier
                 .fillMaxWidth()
                 .windowInsetsPadding(WindowInsets.navigationBars.only(WindowInsetsSides.Bottom))
-                .heightIn(min = 64.dp)
+                .heightIn(min = 60.dp)
                 .selectableGroup(),
             horizontalArrangement = Arrangement.SpaceEvenly,
         ) {
@@ -82,7 +82,7 @@ fun BottomBar(currentRoute: String?, pendingCount: Int, onSelect: (String) -> Un
                 Column(
                     Modifier
                         .weight(1f)
-                        .heightIn(min = 64.dp)
+                        .heightIn(min = 60.dp)
                         .selectable(selected = selected, role = Role.Tab, onClick = { onSelect(tab.route) })
                         .padding(vertical = 8.dp),
                     horizontalAlignment = Alignment.CenterHorizontally,

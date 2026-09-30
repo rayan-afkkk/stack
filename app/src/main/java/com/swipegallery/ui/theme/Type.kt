@@ -48,25 +48,25 @@ fun swipeTypography(displaySize: TextUnit): SwipeTypography = SwipeTypography(
         lineHeight = displaySize * 1.05f,
         letterSpacing = (-0.01).em,
     ),
-    headline = TextStyle(fontFamily = InstrumentSerif, fontSize = 36.sp, lineHeight = 40.sp),
-    title = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Medium, fontSize = 17.sp, lineHeight = 22.sp),
-    numeral = TextStyle(fontFamily = InstrumentSerif, fontSize = 44.sp, lineHeight = 46.sp),
-    bodyLarge = TextStyle(fontFamily = Inter, fontSize = 17.sp, lineHeight = 25.sp),
-    body = TextStyle(fontFamily = Inter, fontSize = 16.sp, lineHeight = 23.sp),
-    bodySmall = TextStyle(fontFamily = Inter, fontSize = 14.sp, lineHeight = 20.sp),
-    label = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Medium, fontSize = 13.sp, lineHeight = 17.sp, letterSpacing = 0.01.em),
-    button = TextStyle(fontFamily = Inter, fontWeight = FontWeight.SemiBold, fontSize = 16.sp, lineHeight = 20.sp),
-    nav = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp),
-    stamp = TextStyle(fontFamily = Inter, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 18.sp, letterSpacing = 0.08.em),
+    headline = TextStyle(fontFamily = InstrumentSerif, fontSize = 32.sp, lineHeight = 36.sp),
+    title = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Medium, fontSize = 16.sp, lineHeight = 21.sp),
+    numeral = TextStyle(fontFamily = InstrumentSerif, fontSize = 40.sp, lineHeight = 42.sp),
+    bodyLarge = TextStyle(fontFamily = Inter, fontSize = 16.sp, lineHeight = 23.sp),
+    body = TextStyle(fontFamily = Inter, fontSize = 15.sp, lineHeight = 22.sp),
+    bodySmall = TextStyle(fontFamily = Inter, fontSize = 13.sp, lineHeight = 18.sp),
+    label = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Medium, fontSize = 12.sp, lineHeight = 16.sp, letterSpacing = 0.01.em),
+    button = TextStyle(fontFamily = Inter, fontWeight = FontWeight.SemiBold, fontSize = 15.sp, lineHeight = 19.sp),
+    nav = TextStyle(fontFamily = Inter, fontWeight = FontWeight.Medium, fontSize = 11.sp, lineHeight = 15.sp),
+    stamp = TextStyle(fontFamily = Inter, fontWeight = FontWeight.SemiBold, fontSize = 14.sp, lineHeight = 17.sp, letterSpacing = 0.08.em),
 )
 
-/** 44–52sp depending on available width. Font scaling still applies on top (sp). */
+/** 40–48sp depending on available width. Font scaling still applies on top (sp). */
 @Composable
 fun responsiveDisplaySize(): TextUnit {
     val width = LocalConfiguration.current.screenWidthDp
     return when {
-        width < 360 -> 44.sp
-        width < 600 -> 48.sp
-        else -> 52.sp
+        width < 360 -> 40.sp
+        width < 600 -> 44.sp
+        else -> 48.sp
     }
 }

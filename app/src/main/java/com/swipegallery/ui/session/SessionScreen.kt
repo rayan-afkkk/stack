@@ -331,7 +331,7 @@ internal fun DecisionButtons(
         val undoLabel = stringResource(R.string.session_undo)
         Box(
             Modifier
-                .size(56.dp)
+                .size(52.dp)
                 .clip(CircleShape)
                 .border(1.dp, c.border, CircleShape)
                 .clickable(enabled = canUndo, role = Role.Button, onClickLabel = undoLabel, onClick = onUndo)
@@ -375,7 +375,7 @@ private fun DecisionButton(
     val fg = SwipeTheme.colors.onPastel
     Row(
         modifier
-            .heightIn(min = 56.dp)
+            .heightIn(min = 52.dp)
             .clip(CircleShape)
             .background(if (enabled) container else container.copy(alpha = 0.4f))
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)

@@ -96,7 +96,7 @@ fun SwipeCard(
     color: Color = SwipeTheme.colors.surface,
     shape: Shape = RoundedCornerShape(Radii.card),
     bordered: Boolean = true,
-    contentPadding: PaddingValues = PaddingValues(Space.xl),
+    contentPadding: PaddingValues = PaddingValues(20.dp),
     onClick: (() -> Unit)? = null,
     onClickLabel: String? = null,
     content: @Composable ColumnScope.() -> Unit,
@@ -124,7 +124,7 @@ fun PrimaryButton(
     val c = SwipeTheme.colors
     Row(
         modifier = modifier
-            .heightIn(min = 56.dp)
+            .heightIn(min = 52.dp)
             .clip(CircleShape)
             .background(if (enabled) c.primaryButton else c.primaryButton.copy(alpha = 0.35f))
             .clickable(enabled = enabled && !loading, role = Role.Button, onClick = onClick)
@@ -154,7 +154,7 @@ fun SecondaryButton(
     val c = SwipeTheme.colors
     Row(
         modifier = modifier
-            .heightIn(min = 52.dp)
+            .heightIn(min = 48.dp)
             .clip(CircleShape)
             .border(BorderStroke(1.dp, c.border), CircleShape)
             .clickable(enabled = enabled, role = Role.Button, onClick = onClick)
@@ -285,7 +285,7 @@ fun ListRow(
     Row(
         modifier
             .fillMaxWidth()
-            .heightIn(min = 60.dp)
+            .heightIn(min = 56.dp)
             .then(if (onClick != null) Modifier.clickable(role = Role.Button, onClick = onClick) else Modifier)
             .padding(vertical = Space.m),
         verticalAlignment = Alignment.CenterVertically,
@@ -331,7 +331,7 @@ fun EmptyState(
     ) {
         Box(
             Modifier
-                .size(72.dp)
+                .size(64.dp)
                 .clip(CircleShape)
                 .border(1.dp, c.border, CircleShape),
             contentAlignment = Alignment.Center,

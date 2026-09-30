@@ -15,7 +15,7 @@ import androidx.compose.ui.unit.sp
 import com.swipegallery.data.prefs.ThemeMode
 
 private val LocalSwipeColors = staticCompositionLocalOf { DarkSwipeColors }
-private val LocalSwipeTypography = staticCompositionLocalOf { swipeTypography(48.sp) }
+private val LocalSwipeTypography = staticCompositionLocalOf { swipeTypography(44.sp) }
 
 object SwipeTheme {
     val colors: SwipeColors
@@ -32,12 +32,12 @@ object Space {
     val l = 16.dp
     val xl = 24.dp
     val xxl = 32.dp
-    val gutter = 24.dp
+    val gutter = 20.dp
 }
 
 object Radii {
-    val card = 26.dp
-    val tile = 20.dp
+    val card = 24.dp
+    val tile = 18.dp
     val small = 14.dp
 }
 

@@ -363,7 +363,7 @@ private fun CategoryCard(
     badge: String? = null,
 ) {
     SwipeCard(
-        modifier = modifier.fillMaxHeight().heightIn(min = 148.dp),
+        modifier = modifier.fillMaxHeight().heightIn(min = 132.dp),
         color = container,
         bordered = container == SwipeTheme.colors.surface,
         shape = RoundedCornerShape(Radii.card),
