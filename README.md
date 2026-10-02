@@ -1,4 +1,4 @@
-# Swipe Gallery
+# Swipe Photos
 
 A native Android app for cleaning up a photo gallery one swipe at a time.
 
@@ -143,7 +143,7 @@ Suggested purchase test plan (not yet performed):
 ### 2. Photo and video permissions declaration (required)
 Google Play limits `READ_MEDIA_IMAGES` / `READ_MEDIA_VIDEO` to apps whose **core functionality** needs broad access to photos. Other apps must use the system photo picker. Because this app requests `READ_MEDIA_IMAGES`, you must complete the **Photo and video permissions** declaration in Play Console (*App content*) and justify it.
 
-Suggested justification (edit to taste): *"Swipe Gallery is a gallery-cleanup app. Its core feature presents every photo in the user's library, or in chosen albums or months, one at a time so the user can keep it or queue it for removal to the system trash. That requires reading the full image collection and its MediaStore metadata. A one-time picker selection cannot provide this. The app supports Android 14 partial access and works with only the selected photos when the user chooses that."*
+Suggested justification (edit to taste): *"Swipe Photos is a gallery-cleanup app. Its core feature presents every photo in the user's library, or in chosen albums or months, one at a time so the user can keep it or queue it for removal to the system trash. That requires reading the full image collection and its MediaStore metadata. A one-time picker selection cannot provide this. The app supports Android 14 partial access and works with only the selected photos when the user chooses that."*
 
 **Approval isn't guaranteed.** Google decides based on the store listing, the declaration and app review. Be ready to send a demo video of the core flow. The app also works with partial ("selected photos") access.
 

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">Swipe Gallery</string>
+    <string name="app_name">Swipe Photos</string>
     <string name="nav_home">Home</string>
     <string name="nav_albums">Albums</string>
     <string name="nav_review">Review</string>
@@ -47,20 +47,20 @@
     <string name="upgrade_card_body">Premium removes the 50-a-day limit and adds size filters. Monthly or yearly, cancel anytime.</string>
     <string name="upgrade_card_cta">See Premium</string>
     <string name="permission_title">Allow photo access</string>
-    <string name="permission_body">Swipe Gallery shows your photos one at a time so you can decide what to keep. Photos are read on this device and never uploaded.</string>
+    <string name="permission_body">Swipe Photos shows your photos one at a time so you can decide what to keep. Photos are read on this device and never uploaded.</string>
     <string name="permission_choice_body">Android will ask whether to share all photos or only the ones you select. You can change this later in Settings.</string>
     <string name="permission_denied_body">Photo access was declined. You can allow it in the app\'s settings under Permissions → Photos and videos.</string>
     <string name="permission_allow">Allow photo access</string>
     <string name="permission_open_settings">Open settings</string>
-    <string name="access_selected_notice">Selected photos only. Swipe Gallery can see just the photos you chose, so counts cover those photos only.</string>
+    <string name="access_selected_notice">Selected photos only. Swipe Photos can see just the photos you chose, so counts cover those photos only.</string>
     <string name="access_selected_albums_notice">Selected photos only. Albums show just the photos you chose to share.</string>
     <string name="access_manage">Manage</string>
     <string name="access_full">All photos</string>
     <string name="access_selected">Selected photos only</string>
     <string name="access_none">Not allowed</string>
     <string name="library_empty_title">No photos yet.</string>
-    <string name="library_empty_body">There are no photos on this device that Swipe Gallery can see.</string>
-    <string name="library_empty_selected_body">You haven\'t shared any photos with Swipe Gallery. Choose photos to review, or allow access to all photos.</string>
+    <string name="library_empty_body">There are no photos on this device that Swipe Photos can see.</string>
+    <string name="library_empty_selected_body">You haven\'t shared any photos with Swipe Photos. Choose photos to review, or allow access to all photos.</string>
     <string name="library_failed_title">Couldn\'t read your photos.</string>
     <string name="library_failed_body">Android didn\'t return your photo library just now. Your review history and queue are safe.</string>
     <string name="scope_all_photos">All photos</string>
@@ -70,7 +70,7 @@
     <string name="albums_title">Albums</string>
     <string name="albums_subtitle">Albums from this device. Browsing and cleaning albums is free.</string>
     <string name="albums_empty_title">No albums.</string>
-    <string name="albums_empty_body">Photos that Swipe Gallery can see aren\'t grouped into any albums.</string>
+    <string name="albums_empty_body">Photos that Swipe Photos can see aren\'t grouped into any albums.</string>
     <string name="setup_subtitle">Choose the order, then swipe. You can leave at any time and pick up where you stopped.</string>
     <string name="setup_month">Month</string>
     <string name="setup_month_empty">No photos from %1$s.</string>
@@ -82,9 +82,9 @@
     <string name="order_largest">Largest</string>
     <string name="setup_revisit">Include reviewed photos</string>
     <string name="setup_revisit_body">Revisit photos you\'ve already kept or queued. Your earlier choices stay until you change them.</string>
-    <string name="setup_selected_only">Only photos you\'ve shared with Swipe Gallery are included.</string>
+    <string name="setup_selected_only">Only photos you\'ve shared with Swipe Photos are included.</string>
     <string name="setup_none_title">No photos here.</string>
-    <string name="setup_none_body">This selection doesn\'t contain any photos Swipe Gallery can see.</string>
+    <string name="setup_none_body">This selection doesn\'t contain any photos Swipe Photos can see.</string>
     <string name="setup_all_reviewed_title">All reviewed.</string>
     <string name="setup_all_reviewed_body">You\'ve made a decision on every photo here. Turn on “Include reviewed photos” to look again.</string>
     <string name="setup_pro_note">Size filters are part of Premium.</string>
@@ -100,7 +100,7 @@
     <string name="session_skip">Skip</string>
     <string name="session_unavailable_title">This photo is no longer available.</string>
     <string name="session_unavailable_body">It may have been deleted or moved by another app. Skipping it doesn\'t use a review.</string>
-    <string name="session_msg_removed_elsewhere">A photo was removed outside Swipe Gallery and has been skipped.</string>
+    <string name="session_msg_removed_elsewhere">A photo was removed outside Swipe Photos and has been skipped.</string>
     <string name="session_msg_undo_trashed">That photo is already in your device\'s trash. Manage it from your gallery or Files app, if your device supports it.</string>
     <string name="session_msg_undo_gone">That decision was undone, but the photo is no longer on this device.</string>
     <string name="session_msg_save_failed">Couldn\'t save that decision. Please try again.</string>
@@ -121,9 +121,9 @@
     <string name="all_reviewed_body">Every photo in this selection already has a decision.</string>
     <string name="all_reviewed_revisit">Revisit reviewed photos</string>
     <string name="no_photos_title">No photos here.</string>
-    <string name="no_photos_body">This selection doesn\'t contain any photos Swipe Gallery can see right now.</string>
+    <string name="no_photos_body">This selection doesn\'t contain any photos Swipe Photos can see right now.</string>
     <string name="session_permission_title">Photo access is off.</string>
-    <string name="session_permission_body">Swipe Gallery can\'t see your photos anymore. Your decisions and queue are saved and will be here when access returns.</string>
+    <string name="session_permission_body">Swipe Photos can\'t see your photos anymore. Your decisions and queue are saved and will be here when access returns.</string>
     <string name="session_premium_title">This is a Premium session.</string>
     <string name="session_premium_body">Large-photo filters are part of Premium. Your saved decisions are unaffected.</string>
     <string name="session_not_found_title">This cleanup isn\'t available.</string>
@@ -136,8 +136,8 @@
     <string name="review_select_all">Select all</string>
     <string name="review_select_none">Clear selection</string>
     <string name="review_preview">Preview</string>
-    <string name="review_tile_no_access">Not shared with Swipe Gallery</string>
-    <string name="review_inaccessible_notice">Some queued photos aren\'t shared with Swipe Gallery, so they can\'t be moved from here. They stay in your queue.</string>
+    <string name="review_tile_no_access">Not shared with Swipe Photos</string>
+    <string name="review_inaccessible_notice">Some queued photos aren\'t shared with Swipe Photos, so they can\'t be moved from here. They stay in your queue.</string>
     <string name="review_estimate">About %1$s selected (estimate)</string>
     <string name="review_estimate_unknown">Size unknown for the selected photos</string>
     <string name="review_move_none">Select photos to move</string>
@@ -153,7 +153,7 @@
     <string name="trash_storage_note">Trashed photos are managed by your device\'s gallery or Files app. Storage may not be freed until the trash is emptied.</string>
     <string name="paywall_intro_limit">You\'ve used today\'s 50 free reviews.</string>
     <string name="paywall_intro_pro">Large-photo filters are part of Premium.</string>
-    <string name="paywall_intro_default">Swipe Gallery Premium</string>
+    <string name="paywall_intro_default">Swipe Photos Premium</string>
     <string name="paywall_title">Keep the cleanup going.</string>
     <string name="paywall_benefit_unlimited">Unlimited photo reviews, every day</string>
     <string name="paywall_benefit_large">Large-photo filters and size ordering</string>
@@ -209,7 +209,7 @@
     <string name="settings_reset">Reset review history</string>
     <string name="settings_reset_sub">Show kept photos in cleanups again</string>
     <string name="settings_version">Version %1$s</string>
-    <string name="feedback_subject">Swipe Gallery feedback</string>
+    <string name="feedback_subject">Swipe Photos feedback</string>
     <string name="feedback_body">\n\n—\nApp version %1$s · Android %2$s</string>
     <string name="reset_title">Reset review history?</string>
     <string name="reset_body">Photos you kept will appear in cleanup sessions again, and open sessions start fresh. No photos are deleted or changed. Your review queue, today\'s review count and Premium stay as they are.</string>
@@ -217,7 +217,7 @@
     <string name="reset_done">Review history reset. Your photos and queue were not changed.</string>
     <string name="privacy_title">Privacy</string>
     <string name="privacy_device_title">On this device</string>
-    <string name="privacy_device_body">Swipe Gallery works entirely on your phone. It has no account, no servers, no analytics and no ads. Photos, thumbnails, file names and review history are never uploaded, and review history is excluded from device backups.</string>
+    <string name="privacy_device_body">Swipe Photos works entirely on your phone. It has no account, no servers, no analytics and no ads. Photos, thumbnails, file names and review history are never uploaded, and review history is excluded from device backups.</string>
     <string name="privacy_access_title">Photo access</string>
     <string name="privacy_access_body">The app reads photos through Android\'s media library to show them for review. On Android 14 and later you can share only selected photos; the app then works with just those.</string>
     <string name="privacy_removal_title">Removing photos</string>
@@ -322,8 +322,8 @@
         <item quantity="other">%1$s were edited after you queued them and are back in your gallery for review.</item>
     </plurals>
     <plurals name="trash_inaccessible">
-        <item quantity="one">%1$s isn\'t shared with Swipe Gallery and stayed in the queue.</item>
-        <item quantity="other">%1$s aren\'t shared with Swipe Gallery and stayed in the queue.</item>
+        <item quantity="one">%1$s isn\'t shared with Swipe Photos and stayed in the queue.</item>
+        <item quantity="other">%1$s aren\'t shared with Swipe Photos and stayed in the queue.</item>
     </plurals>
     <plurals name="trash_missing">
         <item quantity="one">%1$s was no longer on this device and left the queue.</item>
