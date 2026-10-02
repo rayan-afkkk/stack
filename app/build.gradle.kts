@@ -29,10 +29,21 @@ android {
         buildConfigField("String", "SUPPORT_EMAIL", releaseValue("supportEmail").quoted())
         buildConfigField("String", "PRIVACY_URL", releaseValue("privacyUrl").quoted())
         buildConfigField("String", "TERMS_URL", releaseValue("termsUrl").quoted())
+        // Premium subscription (Play Console → Monetize → Subscriptions).
         buildConfigField(
             "String",
             "PREMIUM_PRODUCT_ID",
             releaseValue("premiumProductId").ifEmpty { "swipe_gallery_premium" }.quoted(),
+        )
+        buildConfigField(
+            "String",
+            "MONTHLY_BASE_PLAN_ID",
+            releaseValue("monthlyBasePlanId").ifEmpty { "monthly" }.quoted(),
+        )
+        buildConfigField(
+            "String",
+            "YEARLY_BASE_PLAN_ID",
+            releaseValue("yearlyBasePlanId").ifEmpty { "yearly" }.quoted(),
         )
     }
 

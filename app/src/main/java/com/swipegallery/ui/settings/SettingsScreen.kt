@@ -18,6 +18,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.outlined.HelpOutline
+import androidx.compose.material.icons.outlined.Autorenew
 import androidx.compose.material.icons.outlined.Palette
 import androidx.compose.material.icons.outlined.PhoneAndroid
 import androidx.compose.material.icons.outlined.PhotoLibrary
@@ -51,7 +52,6 @@ import com.swipegallery.BuildConfig
 import com.swipegallery.R
 import com.swipegallery.data.prefs.ThemeMode
 import com.swipegallery.data.prefs.UserPreferences
-import com.swipegallery.debug.DebugTools
 import com.swipegallery.domain.allowance.AllowanceSnapshot
 import com.swipegallery.domain.media.PhotoAccess
 import com.swipegallery.ui.components.Badge
@@ -71,6 +71,7 @@ import com.swipegallery.ui.navigation.containerViewModel
 import com.swipegallery.ui.theme.Space
 import com.swipegallery.ui.theme.SwipeTheme
 import com.swipegallery.util.composeEmail
+import com.swipegallery.util.openUrl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
@@ -216,6 +217,15 @@ fun SettingsScreen(
                 subtitle = stringResource(if (state.isPremium) R.string.settings_premium_active else R.string.settings_premium_sub),
                 onClick = onOpenPaywall,
             )
+            if (state.isPremium) {
+                Divider()
+                ListRow(
+                    Icons.Outlined.Autorenew,
+                    stringResource(R.string.settings_manage_sub),
+                    subtitle = stringResource(R.string.settings_manage_sub_sub),
+                    onClick = { context.openUrl(container.billing.manageSubscriptionUrl) },
+                )
+            }
             Divider()
             ListRow(
                 Icons.Outlined.PhotoLibrary,
@@ -271,7 +281,6 @@ fun SettingsScreen(
                 onClick = { confirmReset = true },
             )
             Divider()
-            DebugTools.SettingsSection()
             Spacer(Modifier.height(Space.xl))
             Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.Center) {
                 Icon(Icons.Outlined.Palette, contentDescription = null, tint = c.textSecondary, modifier = Modifier.size(14.dp))

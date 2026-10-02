@@ -14,7 +14,7 @@ Kotlin, Jetpack Compose (Material 3, heavily restyled), Coroutines/StateFlow, Ro
 
 | What | Status |
 |---|---|
-| `domain` module (quota ledger, review engine, undo, session planning, swipe thresholds, entitlement rules, trash reconciliation) | **Compiled, and 42 JVM unit tests passed** here with `./gradlew -p domain test` (Gradle 8.14.3, JDK 21). |
+| `domain` module (quota ledger, review engine, undo, session planning, swipe thresholds, entitlement rules, subscription plan selection, trash reconciliation) | **Compiled, and 47 JVM unit tests passed** here with `./gradlew -p domain test` (Gradle 8.14.3, JDK 21). |
 | `app` module (Android/Compose/Room/Billing) | **Not compiled here.** This environment blocks `dl.google.com` / `maven.google.com`, so there is no Android SDK, AGP or AndroidX. The Kotlin sources passed a syntax-level check (ktlint parse), and I reviewed them by hand for API correctness. The first build in Android Studio is still the real compile check. |
 | Instrumentation / Compose UI tests (`app/src/androidTest`) | Written, **not run**. |
 | Device testing, Play purchase testing, Play review | **Not done.** Nothing here claims otherwise. |
@@ -34,6 +34,7 @@ domain/                       pure Kotlin (JVM). No Android dependency. Unit-tes
   session/Session.kt          scopes (all / month / album / large), ordering, planning
   swipe/SwipeDecider.kt       commit threshold (30% width), fling rules, tilt, label progress
   billing/Entitlement.kt      PURCHASED-only grants, offline-safe caching, acknowledgement
+  billing/Plans.kt            monthly/yearly plan selection, free-trial detection, honest savings %
   trash/Trash.kt              pre-flight probe, batching, post-dialog reconciliation
   time/AppClock.kt            injectable clock + local-day flow
 app/
@@ -44,8 +45,6 @@ app/
   data/review/                Read models, sessions, daily allowance flow
   ui/…                        Screens + ViewModels (Home, Albums, Setup, Session, Review, Paywall, Settings, Privacy, Onboarding)
   ui/session/SwipeDeck.kt     the gesture + animation deck
-  src/debug/…/DebugTools.kt   debug-only "simulate Premium" toggle (not in release)
-  src/release/…/DebugTools.kt release stub: constant false, no UI
 ```
 
 Dependencies are wired by hand in `AppContainer` (no DI framework). Composables contain no storage, billing, quota or deletion logic. They render ViewModel state and forward user intent.
@@ -72,7 +71,7 @@ I picked these as a known mutually compatible set. I could only confirm the Mave
 ### Things to check on the first compile
 
 I wrote these API uses from knowledge of the listed versions without compiling them:
-- Billing 8: `queryProductDetailsAsync` callback receives `QueryProductDetailsResult` (`productDetailsList`); `enablePendingPurchases(PendingPurchasesParams…enableOneTimeProducts())`; `ProductDetails.oneTimePurchaseOfferDetails`.
+- Billing 8: `queryProductDetailsAsync` callback receives `QueryProductDetailsResult` (`productDetailsList`); `enablePendingPurchases(PendingPurchasesParams…enableOneTimeProducts())`; subscription offers via `ProductDetails.subscriptionOfferDetails` → `pricingPhases.pricingPhaseList`, bought with `ProductDetailsParams.setOfferToken(…)`.
 - Coil 3: `AsyncImage(…, onState = …)`, `ImageRequest.Builder.size(w, h)` / `precision(…)`.
 - `material-icons-extended` 1.7.8 icon names (e.g. `Icons.Outlined.PhotoSizeSelectLarge`, `Icons.AutoMirrored.Outlined.Undo`).
 - Room schema export goes to `app/schemas/` (commit the generated JSON).
@@ -110,26 +109,34 @@ I wrote these API uses from knowledge of the listed versions without compiling t
 
 The app doesn't request `READ_MEDIA_VIDEO`, `MANAGE_EXTERNAL_STORAGE`, `ACCESS_MEDIA_LOCATION`, camera, contacts, location, microphone or accessibility permissions, and its own manifest doesn't declare `INTERNET`. Access is explained on Home before the system dialog, and requested only from a tap. After a permanent denial the app offers "Open settings" instead of asking again. With "Selected photos only", the app says so on every surface that counts photos and offers **Manage** (re-request → system selection sheet). Access is re-checked on every resume.
 
-### Billing (one-time Premium)
-- Product: a **one-time product** with ID `swipe_gallery_premium` (configurable). The app acknowledges it and **never consumes** it.
-- Premium is granted only for `PURCHASED`, never for `PENDING`. The confirmed entitlement is cached in DataStore for offline use.
-- A failed or offline query never revokes the cache. A successful full `queryPurchasesAsync` is authoritative: a refunded or revoked purchase disappears from it and Premium is removed.
-- Purchases are re-queried on app start, on every resume, on reconnect, and from "Restore purchase".
-- The price shown is the localized `formattedPrice` from Play. No price is hardcoded.
-- **Billing limitations:** verification is client-side only. No backend verifies purchase tokens, so there is no server-grade fraud protection and no Real-time Developer Notifications handling. No service-account secrets ship in the app. If you need stronger guarantees, add a backend that verifies tokens with the Play Developer API.
-- A debug-only "simulate Premium" switch lives in `src/debug` and is not compiled into release builds.
+### Billing (Premium subscription)
+- Premium is **one auto-renewing subscription** (`swipe_gallery_premium`) with **two base plans**: `monthly` and `yearly`. There is no lifetime purchase. All three IDs are configurable (see Release configuration).
+- Intended prices: **2.99 USD / month** and **12.99 USD / year**. Prices are set in Play Console, not in code. The app always shows the localized `formattedPrice` that Play returns, and calculates the "Save X%" badge and the "≈ per month" hint from Play's real prices (no badge if currencies differ).
+- If you add a free-trial offer to a base plan in Play Console, users who are eligible see it automatically ("7-day free trial", "Start free trial") with matching disclosure text. Play only returns offers the user can actually claim.
+- The paywall states the price, billing period, automatic renewal and how to cancel, as Google Play's subscription policy requires. Settings and the paywall link to **Manage subscription** (Play's own subscription page) for changing plans or cancelling.
+- Premium is granted only for `PURCHASED`, never for `PENDING`. New subscriptions are acknowledged (Play requires this within 3 days or refunds them). The confirmed entitlement is cached in DataStore for offline use.
+- A failed or offline query never revokes the cache. A successful `queryPurchasesAsync(SUBS)` is authoritative: Play lists only active subscriptions, so an expired, refunded or revoked one disappears and Premium is removed at the next online check (app start, every resume, reconnect, or "Restore purchase").
+- **Billing limitations:** verification is client-side only. No backend verifies purchase tokens and there's no Real-time Developer Notifications handling, so there's no server-grade fraud protection. A user who stays offline keeps the cached Premium until the app next reaches Play. No service-account secrets ship in the app. For stronger guarantees, add a backend that verifies tokens with the Play Developer API.
 
 ---
 
 ## Google Play configuration
 
-### 1. In-app product
-Play Console → *Monetize → Products → One-time products*: create `swipe_gallery_premium` (or set `swipegallery.premiumProductId`). Add a purchase option with a price and activate it. Products load only for builds uploaded to a testing track and installed by a tester account (use **internal testing** plus **license testers**).
+### 1. Subscription
+Play Console → *Monetize → Products → Subscriptions* → create subscription **`swipe_gallery_premium`**, then add two auto-renewing base plans:
+
+| Base plan ID | Billing period | Price |
+|---|---|---|
+| `monthly` | 1 month | 2.99 USD |
+| `yearly` | 1 year | 12.99 USD |
+
+Activate both base plans. Let Play Console convert the prices for other countries, or set local prices yourself. Optional: add a free-trial offer to either base plan. The app picks it up automatically for eligible users. Products load only for builds uploaded to a testing track and installed by a tester account (use **internal testing** plus **license testers**; test subscriptions renew on a shortened schedule).
 
 Suggested purchase test plan (not yet performed):
-- Successful purchase → Premium active, purchase acknowledged, still active offline (airplane mode + relaunch).
+- Subscribe monthly, then yearly (switching happens through Play's Manage subscription page) → Premium active, purchase acknowledged, still active offline (airplane mode + relaunch).
 - "Slow test card, approves/declines after a few minutes" → pending state, **no** Premium until approved.
-- User cancels the purchase sheet → "Purchase cancelled", free features unaffected.
+- Cancel the purchase sheet → "Purchase cancelled", free features unaffected.
+- Cancel the subscription and let a test renewal lapse → Premium removed at the next online check.
 - Refund/revoke in Play Console → Premium removed after the next successful online query.
 - Uninstall/reinstall → Restore purchase.
 
@@ -157,7 +164,9 @@ Set these in `~/.gradle/gradle.properties` or pass them with `-P`. Empty values 
 | `swipegallery.supportEmail` | Settings → Help & feedback (mailto) | Row hidden |
 | `swipegallery.privacyUrl` | Paywall + Privacy screen link | Link hidden (the in-app privacy summary still shows) |
 | `swipegallery.termsUrl` | Paywall + Privacy screen link | Link hidden |
-| `swipegallery.premiumProductId` | Play product ID | Defaults to `swipe_gallery_premium` |
+| `swipegallery.premiumProductId` | Play subscription ID | Defaults to `swipe_gallery_premium` |
+| `swipegallery.monthlyBasePlanId` | Monthly base plan ID | Defaults to `monthly` |
+| `swipegallery.yearlyBasePlanId` | Yearly base plan ID | Defaults to `yearly` |
 
 ### Outstanding before release
 1. **Compile and run** the app module in Android Studio, and fix anything the first build reports (see the checklist above).
@@ -165,7 +174,7 @@ Set these in `~/.gradle/gradle.properties` or pass them with `-P`. Empty values 
 3. **Signing:** create an upload key and configure `signingConfigs` (deliberately left out of the repo). Enable Play App Signing.
 4. Pick the final **applicationId** (currently `com.swipegallery.app`). It can't change after publishing.
 5. Supply **support email, privacy policy URL, terms URL** (table above) and host the privacy policy.
-6. Create and activate the **one-time product** in Play Console, then run the purchase test plan.
+6. Create the **subscription** and its `monthly` / `yearly` base plans in Play Console, then run the purchase test plan.
 7. Submit the **Photo and video permissions** declaration and the **Data safety** form.
 8. Replace the placeholder launcher icon (`res/drawable/ic_launcher_*.xml`) with final artwork if desired.
 
@@ -173,7 +182,7 @@ Set these in `~/.gradle/gradle.properties` or pass them with `-P`. Empty values 
 
 ## Tests
 
-**JVM (`domain/src/test`, runs anywhere, currently passing: 42 tests)**
+**JVM (`domain/src/test`, runs anywhere, currently passing: 47 tests)**
 - Reviews 1–50 succeed; review 51 is blocked for Free; Premium bypasses the limit.
 - Keep and pending-remove each count once; duplicate and concurrent commits charge once.
 - Cancelled gestures don't count (swipe decider + engine).
@@ -182,6 +191,7 @@ Set these in `~/.gradle/gradle.properties` or pass them with `-P`. Empty values 
 - App restart (new engine on the same store) keeps usage; a simulated crash mid-transaction leaves no partial writes.
 - Reset review history keeps the daily ledger and the queue.
 - Billing failure doesn't revoke cached Premium; pending purchases don't unlock; authoritative empty query revokes; acknowledgement rules.
+- Subscription plans: one option per base plan with Play's real price, eligible free trials preferred, honest yearly savings (63% for 2.99/12.99), no savings claim across currencies.
 - Cancelled trash preserves the queue; partial success updates only trashed items; batching; missing/changed/inaccessible handling.
 - Externally deleted or changed photos leave the queue without errors.
 - Session planning: month scope, album scope, reviewed-photo exclusion and revisit, ordering, unknown sizes.

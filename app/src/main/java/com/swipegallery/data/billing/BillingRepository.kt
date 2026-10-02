@@ -17,9 +17,14 @@ import com.android.billingclient.api.QueryPurchasesParams
 import com.swipegallery.domain.billing.BillingError
 import com.swipegallery.domain.billing.EntitlementResolver
 import com.swipegallery.domain.billing.EntitlementState
+import com.swipegallery.domain.billing.PlanOption
+import com.swipegallery.domain.billing.PlanSelector
+import com.swipegallery.domain.billing.PricePhase
 import com.swipegallery.domain.billing.PurchaseQueryResult
 import com.swipegallery.domain.billing.PurchaseRecord
 import com.swipegallery.domain.billing.PurchaseStatus
+import com.swipegallery.domain.billing.SubscriptionOffer
+import com.swipegallery.domain.billing.SubscriptionPlans
 import com.swipegallery.domain.time.AppClock
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -36,11 +41,18 @@ import kotlinx.coroutines.withTimeoutOrNull
 import java.util.concurrent.atomic.AtomicBoolean
 import kotlin.coroutines.resume
 
+/** Play Console identifiers for the Premium subscription. */
+data class SubscriptionConfig(
+    val productId: String,
+    val monthlyBasePlanId: String,
+    val yearlyBasePlanId: String,
+)
+
 sealed interface ProductState {
     data object Loading : ProductState
 
-    /** [formattedPrice] is the localized price reported by Google Play. */
-    data class Available(val formattedPrice: String, internal val details: ProductDetails) : ProductState
+    /** Prices inside [plans] are the localized strings reported by Google Play. */
+    data class Available(val plans: SubscriptionPlans, internal val details: ProductDetails) : ProductState
 
     data class Unavailable(val error: BillingError) : ProductState
 }
@@ -60,21 +72,25 @@ sealed interface RestoreOutcome {
 }
 
 /**
- * One-time, non-consumable Premium through Google Play Billing.
+ * Premium as an auto-renewing Google Play subscription with a monthly and a yearly base plan.
  *
  * - Entitlement is granted only for PURCHASED (never PENDING) and cached for offline use.
- * - Purchases are acknowledged; the product is never consumed.
- * - A failed or offline query never revokes a cached entitlement; a successful full query is
- *   authoritative (refunds/revocations remove the purchase from Play's list).
+ * - New subscriptions are acknowledged (required by Play within 3 days). Nothing is consumed.
+ * - A failed or offline query never revokes a cached entitlement. A successful full query is
+ *   authoritative: Play only lists active subscriptions, so an expired, cancelled-and-lapsed,
+ *   refunded or revoked subscription disappears and Premium is removed.
  * - Verification is client-side only; there is no backend. See README "Billing limitations".
  */
 class BillingRepository(
     context: Context,
     private val scope: CoroutineScope,
     private val cache: EntitlementCache,
-    private val productId: String,
+    val config: SubscriptionConfig,
     private val clock: AppClock,
 ) : PurchasesUpdatedListener {
+
+    private val packageName = context.packageName
+    private val productId get() = config.productId
 
     private val client: BillingClient = BillingClient.newBuilder(context.applicationContext)
         .setListener(this)
@@ -93,6 +109,10 @@ class BillingRepository(
 
     private val connectMutex = Mutex()
     private val stateMutex = Mutex()
+
+    /** Google Play's own page for changing plan or cancelling. */
+    val manageSubscriptionUrl: String
+        get() = "https://play.google.com/store/account/subscriptions?sku=$productId&package=$packageName"
 
     fun start() {
         scope.launch {
@@ -142,7 +162,7 @@ class BillingRepository(
                 listOf(
                     QueryProductDetailsParams.Product.newBuilder()
                         .setProductId(productId)
-                        .setProductType(BillingClient.ProductType.INAPP)
+                        .setProductType(BillingClient.ProductType.SUBS)
                         .build(),
                 ),
             )
@@ -151,9 +171,11 @@ class BillingRepository(
             client.queryProductDetailsAsync(params) { billingResult, detailsResult ->
                 val state = if (billingResult.responseCode == BillingResponseCode.OK) {
                     val details = detailsResult.productDetailsList.firstOrNull { it.productId == productId }
-                    val price = details?.oneTimePurchaseOfferDetails?.formattedPrice
-                    if (details != null && price != null) {
-                        ProductState.Available(price, details)
+                    val plans = details?.let {
+                        PlanSelector.select(it.toSubscriptionOffers(), config.monthlyBasePlanId, config.yearlyBasePlanId)
+                    }
+                    if (details != null && plans != null && !plans.isEmpty) {
+                        ProductState.Available(plans, details)
                     } else {
                         ProductState.Unavailable(BillingError.ITEM_UNAVAILABLE)
                     }
@@ -166,13 +188,14 @@ class BillingRepository(
     }
 
     /** Must be called on the main thread with a foreground Activity. */
-    fun launchPurchase(activity: Activity): Boolean {
+    fun launchPurchase(activity: Activity, plan: PlanOption): Boolean {
         val product = _product.value as? ProductState.Available ?: return false
         val params = BillingFlowParams.newBuilder()
             .setProductDetailsParamsList(
                 listOf(
                     BillingFlowParams.ProductDetailsParams.newBuilder()
                         .setProductDetails(product.details)
+                        .setOfferToken(plan.offerToken)
                         .build(),
                 ),
             )
@@ -225,14 +248,14 @@ class BillingRepository(
         }
     }
 
-    private suspend fun currentCached(): EntitlementState = _entitlement.value ?: EntitlementState()
+    private fun currentCached(): EntitlementState = _entitlement.value ?: EntitlementState()
 
     private suspend fun queryPurchases(): PurchaseQueryResult {
         val connection = ensureConnected()
         if (connection.responseCode != BillingResponseCode.OK) {
             return PurchaseQueryResult.Failure(connection.responseCode.toBillingError())
         }
-        val params = QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.INAPP).build()
+        val params = QueryPurchasesParams.newBuilder().setProductType(BillingClient.ProductType.SUBS).build()
         return suspendCancellableCoroutine<PurchaseQueryResult> { cont ->
             client.queryPurchasesAsync(params) { billingResult, purchases ->
                 val value = if (billingResult.responseCode == BillingResponseCode.OK) {
@@ -284,6 +307,24 @@ class BillingRepository(
     private companion object {
         const val CONNECT_TIMEOUT_MS = 15_000L
     }
+}
+
+private fun ProductDetails.toSubscriptionOffers(): List<SubscriptionOffer> = subscriptionOfferDetails.orEmpty().map { offer ->
+    SubscriptionOffer(
+        basePlanId = offer.basePlanId,
+        offerId = offer.offerId,
+        offerToken = offer.offerToken,
+        phases = offer.pricingPhases.pricingPhaseList.map { phase ->
+            PricePhase(
+                formattedPrice = phase.formattedPrice,
+                priceMicros = phase.priceAmountMicros,
+                currencyCode = phase.priceCurrencyCode,
+                billingPeriod = phase.billingPeriod,
+                billingCycleCount = phase.billingCycleCount,
+                recurring = phase.recurrenceMode == ProductDetails.RecurrenceMode.INFINITE_RECURRING,
+            )
+        },
+    )
 }
 
 private fun Purchase.toRecord() = PurchaseRecord(

@@ -44,7 +44,7 @@
     <string name="badge_free">Free</string>
     <string name="badge_premium">Premium</string>
     <string name="upgrade_card_title">Keep going without a daily limit</string>
-    <string name="upgrade_card_body">Premium is a one-time purchase that removes the 50-a-day limit and adds size filters.</string>
+    <string name="upgrade_card_body">Premium removes the 50-a-day limit and adds size filters. Monthly or yearly, cancel anytime.</string>
     <string name="upgrade_card_cta">See Premium</string>
     <string name="permission_title">Allow photo access</string>
     <string name="permission_body">Swipe Gallery shows your photos one at a time so you can decide what to keep. Photos are read on this device and never uploaded.</string>
@@ -157,23 +157,34 @@
     <string name="paywall_title">Keep the cleanup going.</string>
     <string name="paywall_benefit_unlimited">Unlimited photo reviews, every day</string>
     <string name="paywall_benefit_large">Large-photo filters and size ordering</string>
-    <string name="paywall_benefit_once">One-time purchase. No subscription.</string>
+    <string name="paywall_benefit_cancel">Monthly or yearly. Cancel anytime in Google Play.</string>
     <string name="paywall_free_note">Reviewing and removing photos already in your queue stays free, with or without Premium.</string>
-    <string name="paywall_price_line">One-time purchase · %1$s</string>
-    <string name="paywall_buy">Unlock for %1$s</string>
+    <string name="paywall_subscribe">Subscribe</string>
+    <string name="paywall_start_trial">Start free trial</string>
+    <string name="paywall_manage">Manage subscription</string>
+    <string name="paywall_disclosure_month">%1$s per month. Renews automatically until you cancel. Cancel anytime in Google Play.</string>
+    <string name="paywall_disclosure_year">%1$s per year. Renews automatically until you cancel. Cancel anytime in Google Play.</string>
+    <string name="paywall_disclosure_trial_month">%1$s, then %2$s per month. Renews automatically until you cancel. Cancel in Google Play before the trial ends and you won’t be charged.</string>
+    <string name="paywall_disclosure_trial_year">%1$s, then %2$s per year. Renews automatically until you cancel. Cancel in Google Play before the trial ends and you won’t be charged.</string>
+    <string name="plan_yearly">Yearly</string>
+    <string name="plan_monthly">Monthly</string>
+    <string name="plan_price_year">%1$s / year</string>
+    <string name="plan_price_month">%1$s / month</string>
+    <string name="plan_per_month">≈ %1$s / month</string>
+    <string name="plan_save">Save %1$d%%</string>
     <string name="paywall_loading_price">Loading price…</string>
     <string name="paywall_active">Premium is active. Thank you.</string>
     <string name="paywall_not_now">Not now</string>
     <string name="paywall_restore">Restore purchase</string>
     <string name="paywall_restoring">Checking Google Play for your purchase…</string>
     <string name="paywall_restored">Premium restored.</string>
-    <string name="paywall_nothing_to_restore">No Premium purchase was found for this Google account.</string>
+    <string name="paywall_nothing_to_restore">No active Premium subscription was found for this Google account.</string>
     <string name="paywall_pending">Your purchase is pending. Premium unlocks once Google Play confirms the payment.</string>
     <string name="paywall_cancelled">Purchase cancelled.</string>
     <string name="billing_offline">Google Play can\'t be reached right now. Check your connection and try again. Free features keep working.</string>
     <string name="billing_unavailable">Google Play purchases aren\'t available on this device or account. Free features keep working.</string>
     <string name="billing_product_unavailable">Premium isn\'t available right now. Free features keep working.</string>
-    <string name="billing_already_owned">You already own Premium. Restoring it now.</string>
+    <string name="billing_already_owned">You already have Premium. Restoring it now.</string>
     <string name="billing_error">Something went wrong with Google Play. Please try again.</string>
     <string name="link_terms">Terms</string>
     <string name="link_privacy">Privacy policy</string>
@@ -186,6 +197,8 @@
     <string name="theme_dark">Dark</string>
     <string name="settings_view_onboarding">View onboarding</string>
     <string name="settings_premium">Premium &amp; restore purchase</string>
+    <string name="settings_manage_sub">Manage subscription</string>
+    <string name="settings_manage_sub_sub">Change plan or cancel in Google Play</string>
     <string name="settings_premium_sub">Unlimited reviews and size filters</string>
     <string name="settings_premium_active">Premium is active</string>
     <string name="settings_photo_access">Photo access</string>
@@ -210,7 +223,7 @@
     <string name="privacy_removal_title">Removing photos</string>
     <string name="privacy_removal_body">Swiping left only adds a photo to your review queue. Photos move to the device trash only after you confirm in Android\'s own dialog. The app never deletes permanently, and it can\'t remove copies stored in cloud backups.</string>
     <string name="privacy_purchases_title">Purchases</string>
-    <string name="privacy_purchases_body">Premium is sold through Google Play. The app checks your purchase with Google Play on this device; it doesn\'t see your payment details.</string>
+    <string name="privacy_purchases_body">Premium is a monthly or yearly subscription sold through Google Play. It renews automatically until you cancel in Google Play. The app checks your subscription with Google Play on this device; it doesn\'t see your payment details.</string>
     <string name="privacy_limits_title">Daily limit</string>
     <string name="privacy_limits_body">The 50 free reviews a day are counted on this device using its clock and calendar.</string>
     <string name="privacy_font_licenses">Font licenses</string>
@@ -247,6 +260,14 @@
     <plurals name="home_queue_shortcut">
         <item quantity="one">%1$s photo waiting in Review</item>
         <item quantity="other">%1$s photos waiting in Review</item>
+    </plurals>
+    <plurals name="plan_trial_days">
+        <item quantity="one">%1$d-day free trial</item>
+        <item quantity="other">%1$d-day free trial</item>
+    </plurals>
+    <plurals name="plan_trial_months">
+        <item quantity="one">%1$d-month free trial</item>
+        <item quantity="other">%1$d-month free trial</item>
     </plurals>
     <plurals name="large_count">
         <item quantity="one">%1$s over 5 MB to review</item>

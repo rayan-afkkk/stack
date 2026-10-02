@@ -3,13 +3,13 @@ package com.swipegallery
 import android.app.Application
 import com.swipegallery.data.billing.BillingRepository
 import com.swipegallery.data.billing.EntitlementCache
+import com.swipegallery.data.billing.SubscriptionConfig
 import com.swipegallery.data.db.AppDatabase
 import com.swipegallery.data.db.RoomReviewStore
 import com.swipegallery.data.media.MediaRepository
 import com.swipegallery.data.prefs.PreferencesRepository
 import com.swipegallery.data.review.AllowanceRepository
 import com.swipegallery.data.review.ReviewRepository
-import com.swipegallery.debug.DebugTools
 import com.swipegallery.domain.review.ReviewEngine
 import com.swipegallery.domain.time.AppClock
 import com.swipegallery.domain.time.SystemAppClock
@@ -18,9 +18,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.filterNotNull
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 
@@ -37,14 +37,18 @@ class AppContainer(app: Application) {
         context = app,
         scope = appScope,
         cache = entitlementCache,
-        productId = BuildConfig.PREMIUM_PRODUCT_ID,
+        config = SubscriptionConfig(
+            productId = BuildConfig.PREMIUM_PRODUCT_ID,
+            monthlyBasePlanId = BuildConfig.MONTHLY_BASE_PLAN_ID,
+            yearlyBasePlanId = BuildConfig.YEARLY_BASE_PLAN_ID,
+        ),
         clock = clock,
     )
 
     /** Null until the cached entitlement is loaded, so nothing is decided on a guess. */
-    val premium: StateFlow<Boolean?> = combine(billing.entitlement, DebugTools.premiumOverride) { state, debug ->
-        state?.let { it.isPremium || debug }
-    }.stateIn(appScope, SharingStarted.Eagerly, null)
+    val premium: StateFlow<Boolean?> = billing.entitlement
+        .map { state -> state?.isPremium }
+        .stateIn(appScope, SharingStarted.Eagerly, null)
 
     val media = MediaRepository(app, appScope)
 
