@@ -18,7 +18,7 @@ android {
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.swpiephotos.applet"
+        applicationId = "com.swipephotos.applet"
         minSdk = 30
         targetSdk = 36
         versionCode = 1
