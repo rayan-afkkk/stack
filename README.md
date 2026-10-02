@@ -172,7 +172,7 @@ Set these in `~/.gradle/gradle.properties` or pass them with `-P`. Empty values 
 1. **Compile and run** the app module in Android Studio, and fix anything the first build reports (see the checklist above).
 2. Run `connectedDebugAndroidTest` on a phone (compact screen) and a tablet, and test with font scale 200% and "Remove animations".
 3. **Signing:** create an upload key and configure `signingConfigs` (deliberately left out of the repo). Enable Play App Signing.
-4. Pick the final **applicationId** (currently `com.swipegallery.app`). It can't change after publishing.
+4. Pick the final **applicationId** (currently `com.swpiephotos.applet`). It can't change after publishing.
 5. Supply **support email, privacy policy URL, terms URL** (table above) and host the privacy policy.
 6. Create the **subscription** and its `monthly` / `yearly` base plans in Play Console, then run the purchase test plan.
 7. Submit the **Photo and video permissions** declaration and the **Data safety** form.
