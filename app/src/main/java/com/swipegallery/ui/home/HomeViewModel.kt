@@ -11,6 +11,7 @@ import com.swipegallery.domain.media.PhotoAccess
 import com.swipegallery.domain.session.SessionPlanner
 import com.swipegallery.domain.session.SessionScope
 import com.swipegallery.domain.session.SessionSpec
+import com.swipegallery.ui.navigation.STOP_TIMEOUT_MS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -106,7 +107,7 @@ class HomeViewModel(private val container: AppContainer) : ViewModel() {
             isPremium = premium,
             currentMonth = YearMonth.now(zone),
         )
-    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), HomeUiState())
+    }.stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), HomeUiState())
 
     private suspend fun resumableFrom(session: SessionInfo?, index: MediaIndex, decided: Set<String>): ResumableSession? {
         if (session == null || index !is MediaIndex.Ready) return null

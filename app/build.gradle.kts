@@ -90,6 +90,11 @@ ksp {
     arg("room.schemaLocation", "$projectDir/schemas")
 }
 
+composeCompiler {
+    // Lets Compose skip redrawing screens whose domain data didn't change.
+    stabilityConfigurationFiles.add(rootProject.layout.projectDirectory.file("compose_stability.conf"))
+}
+
 dependencies {
     implementation("com.swipegallery:domain:1.0")
 
@@ -112,6 +117,8 @@ dependencies {
     ksp(libs.androidx.room.compiler)
 
     implementation(libs.androidx.datastore.preferences)
+    // Installs the baseline profile (src/main/baseline-prof.txt) for faster, smoother first runs.
+    implementation(libs.androidx.profileinstaller)
     implementation(libs.coil.compose)
     implementation(libs.billing)
     implementation(libs.kotlinx.coroutines.android)

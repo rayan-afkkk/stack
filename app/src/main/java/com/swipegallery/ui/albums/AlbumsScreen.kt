@@ -58,6 +58,7 @@ import com.swipegallery.ui.theme.Radii
 import com.swipegallery.ui.theme.Space
 import com.swipegallery.ui.theme.SwipeTheme
 import com.swipegallery.util.Format
+import com.swipegallery.ui.navigation.STOP_TIMEOUT_MS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.SharingStarted
@@ -86,10 +87,10 @@ class AlbumsViewModel(container: AppContainer) : ViewModel() {
             }
         }
         .flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), AlbumsUiState.Loading)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), AlbumsUiState.Loading)
 
     val prefs: StateFlow<UserPreferences?> = container.preferences.preferences
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), null)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), null)
 }
 
 @Composable

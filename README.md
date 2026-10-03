@@ -203,6 +203,14 @@ Set these in `~/.gradle/gradle.properties` or pass them with `-P`. Empty values 
 
 ---
 
+## Performance
+- **Test smoothness on a release build.** Debug builds are marked debuggable, which turns off most of Android's runtime optimizations and makes any Compose app stutter. Install a release (or `benchmark`-style non-debuggable) build to judge smoothness.
+- `app/src/main/baseline-prof.txt` is a hand-written Baseline Profile for the app's own code, installed by `androidx.profileinstaller`. Play also applies it. For a measured profile, add a Baseline Profile module (Android Studio: *New Module → Baseline Profile Generator*) and replace the file.
+- The swipe card follows the finger through snapshot state written in the pointer handler, so it moves on the same frame. Animations only handle settle-back, entry and exit.
+- Library-wide counting (Home, Albums, Setup) stops about 1 s after leaving those screens, and the reviewed-photos query is shared, so nothing heavy runs while you swipe.
+- Swipe cards are decoded at card size, capped at 1440 px, and the next 3 photos are prefetched.
+- `compose_stability.conf` marks the immutable domain types stable so Compose can skip unchanged UI.
+
 ## Accessibility and motion
 - All interactive targets are at least 48 dp. Keep/Remove are always available as labeled buttons, and as TalkBack custom actions on the card.
 - Keep/remove use icons and words, never color alone. Photo descriptions list only date, size and dimensions, never guessed content.

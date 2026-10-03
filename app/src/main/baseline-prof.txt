@@ -1,0 +1,8 @@
+# Baseline Profile: tells Android to compile these code paths ahead of time at install,
+# instead of interpreting/JIT-compiling them while the user swipes. Compose, Room, Coil and
+# coroutines ship their own profiles; these rules cover the app's own code.
+#
+# For a measured profile, generate one with a Baseline Profile / Macrobenchmark module and
+# replace this file (see README "Performance").
+HSPLcom/swipegallery/**->**(**)**
+Lcom/swipegallery/**;

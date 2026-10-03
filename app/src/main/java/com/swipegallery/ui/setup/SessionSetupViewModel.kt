@@ -12,6 +12,7 @@ import com.swipegallery.domain.session.SessionOrder
 import com.swipegallery.domain.session.SessionPlanner
 import com.swipegallery.domain.session.SessionScope
 import com.swipegallery.domain.session.SessionSpec
+import com.swipegallery.ui.navigation.STOP_TIMEOUT_MS
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -86,7 +87,7 @@ class SessionSetupViewModel(private val container: AppContainer, handle: SavedSt
     ) { choice, index, decided, premium -> Inputs(choice, index, decided, premium == true) }
         .mapLatest { inputs -> build(inputs) }
         .flowOn(Dispatchers.Default)
-        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(5_000), SetupUiState.Loading)
+        .stateIn(viewModelScope, SharingStarted.WhileSubscribed(STOP_TIMEOUT_MS), SetupUiState.Loading)
 
     private data class Inputs(val choice: SetupChoice?, val index: MediaIndex, val decided: Set<String>, val premium: Boolean)
 

@@ -13,11 +13,14 @@ import com.swipegallery.domain.session.SessionSpec
 import com.swipegallery.domain.time.AppClock
 import com.swipegallery.domain.time.ledgerKey
 import com.swipegallery.domain.time.today
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
+import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.shareIn
 
 data class SessionInfo(val id: Long, val spec: SessionSpec, val updatedAt: Long, val completed: Boolean)
 
@@ -30,6 +33,7 @@ class ReviewRepository(
     private val db: AppDatabase,
     val engine: ReviewEngine,
     private val clock: AppClock,
+    scope: CoroutineScope,
 ) {
     private val dao = db.reviewDao()
 
@@ -37,6 +41,8 @@ class ReviewRepository(
     val decidedKeys: Flow<Set<String>> = dao.observeDecidedKeys()
         .map { keys -> keys.toHashSet() }
         .flowOn(Dispatchers.Default)
+        // One query and one set shared by every screen; stops when nobody is watching.
+        .shareIn(scope, SharingStarted.WhileSubscribed(stopTimeoutMillis = 0, replayExpirationMillis = 0), replay = 1)
 
     val queue: Flow<List<QueueItem>> = dao.observeQueue().map { list -> list.map { it.toDomain() } }
 

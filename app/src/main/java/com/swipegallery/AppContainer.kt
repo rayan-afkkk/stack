@@ -58,7 +58,7 @@ class AppContainer(app: Application) {
         isPremium = { premium.filterNotNull().first() },
     )
 
-    val reviews = ReviewRepository(database, engine, clock)
+    val reviews = ReviewRepository(database, engine, clock, appScope)
     val allowance = AllowanceRepository(database.reviewDao(), clock, premium, appScope)
 
     fun start() {

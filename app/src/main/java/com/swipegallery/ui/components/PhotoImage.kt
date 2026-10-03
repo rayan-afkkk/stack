@@ -47,7 +47,7 @@ fun photoRequest(context: Context, uri: Uri, widthPx: Int, heightPx: Int): Image
         .precision(Precision.INEXACT)
         .build()
 
-private const val MAX_DECODE_PX = 2048
+private const val MAX_DECODE_PX = 1440
 
 /** Enqueues decodes for upcoming photos. Dispose the returned handles when the session ends. */
 fun prefetchPhotos(context: Context, uris: List<Uri>, widthPx: Int, heightPx: Int): List<Disposable> {
